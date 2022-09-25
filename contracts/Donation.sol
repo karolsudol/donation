@@ -15,13 +15,14 @@ contract Donation {
         uint256 amount = msg.value;
 
         amounts[msg.sender] += amount;
+        donors.push(msg.sender);
     }
 
     function releaseFunds(address to, uint256 amount) external {
         require(msg.sender == owner);
 
         payable(to).transfer(amount);
-        donors.push(msg.sender);
+        
     }
 
     function getDonors ()external view returns (address[] memory ){

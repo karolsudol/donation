@@ -26,23 +26,9 @@ describe("Donation", async () => {
 
     const balance0ETH = await provider.getBalance(donation.address);
     expect(balance0ETH).to.be.equal(ethers.utils.parseEther("1.0"));
-
-    // const balanceAfter = await donation.address.getBalance();
-    // expect(donation.)
-    // check that amount was added in a mapping
   });
 
-  // it("test_getDonors()", async () => {
-  //   await donation
-  //     .connect(accounts[1])
-  //     .donate({ value: ethers.utils.parseEther("1.0") });
-
-  //     .connect(accounts[2])
-  //     .donate({ value: ethers.utils.parseEther("1.0") });
-  //   // check that amount was added in a mapping
-  // });
-
-  it("new", async () => {
+  it("Should release funds correctly", async () => {
     await donation
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("1.0") });
@@ -57,5 +43,23 @@ describe("Donation", async () => {
     expect(balanceAfter).to.be.equal(
       balanceBefore.add(ethers.utils.parseEther("0.5"))
     );
+  });
+
+  it("Should record donors addreses and payment details correctly", async () => {
+    await donation
+      .connect(accounts[1])
+      .donate({ value: ethers.utils.parseEther("2.0") });
+    await donation
+      .connect(accounts[2])
+      .donate({ value: ethers.utils.parseEther("1.0") });
+
+    const donors = await donation.getDonors();
+    expect(donors.length).to.be.equal(2);
+    expect(donors[0]).to.be.equal(accounts[1].address);
+
+    // TBD: struggle to get eth values saved for each address in mapping
+
+    // const amounts = donation.amounts;
+    // expect((await amounts(accounts[1])).toNumber).to.be.equal(2.0);
   });
 });
