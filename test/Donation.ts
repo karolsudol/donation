@@ -1,6 +1,5 @@
 import { ethers } from "hardhat";
 import { Donation } from "../typechain-types";
-// import { Donation } from "../contracts/Donation.sol";
 
 import { expect } from "chai";
 
