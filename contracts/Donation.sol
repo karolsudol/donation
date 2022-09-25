@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 contract Donation {
     address public owner;
     mapping(address => uint256) public amounts;
+    address[] public donors;
+
 
     constructor () {
         owner = msg.sender;
@@ -19,5 +21,11 @@ contract Donation {
         require(msg.sender == owner);
 
         payable(to).transfer(amount);
+        donors.push(msg.sender);
     }
+
+    function getDonors ()external view returns (address[] memory ){
+        return donors;   
+    }
+
 }
