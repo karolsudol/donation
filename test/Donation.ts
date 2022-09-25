@@ -20,8 +20,27 @@ describe("Donation", async () => {
     await donation
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("1.0") });
+
+    const { waffle } = require("hardhat");
+    const provider = waffle.provider;
+
+    const balance0ETH = await provider.getBalance(donation.address);
+    expect(balance0ETH).to.be.equal(ethers.utils.parseEther("1.0"));
+
+    // const balanceAfter = await donation.address.getBalance();
+    // expect(donation.)
     // check that amount was added in a mapping
   });
+
+  // it("test_getDonors()", async () => {
+  //   await donation
+  //     .connect(accounts[1])
+  //     .donate({ value: ethers.utils.parseEther("1.0") });
+
+  //     .connect(accounts[2])
+  //     .donate({ value: ethers.utils.parseEther("1.0") });
+  //   // check that amount was added in a mapping
+  // });
 
   it("new", async () => {
     await donation
