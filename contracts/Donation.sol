@@ -8,13 +8,17 @@ pragma solidity ^0.8.17;
 contract Donation {
 
     /** **** Events **** */
-    event Donate(address indexed from, uint256 amount, uint256 ts);
-    event ReleaseFunds(address indexed to, uint256 amount, uint256 ts);
+    event Donate(address indexed from, uint256 amount);
+    event ReleaseFunds(address indexed to, uint256 amount);
 
     /** **** State Variables **** */
     address public owner;
     mapping(address => uint256) public amounts;
     address[] public donors;
+    uint256 public totalAmount;
+
+    // custo error
+     error InsufficientBalance(uint balance, uint withdrawAmount);
 
     constructor () {
         owner = msg.sender;
@@ -40,11 +44,16 @@ contract Donation {
    */
     function donate() external payable {
         uint256  amount  = msg.value;
+        require(amount > 0,"donations is 0");
 
         amounts[msg.sender] += amount;
-        donors.push(msg.sender);
+        totalAmount += amount;
 
-        emit Donate(msg.sender, amount, block.timestamp);
+        if (amounts[msg.sender] == 0){
+            donors.push(msg.sender);
+        }
+
+        emit Donate(msg.sender, amount);
     }
 
   /**
@@ -52,13 +61,25 @@ contract Donation {
    *
    * @param to owners address
    * @param amount amount denominated in ETH
+   *
    * Emits a {ReleaseFunds} event.
    */
     function releaseFunds(address to, uint256 amount) external {
-        require(msg.sender == owner);
-        payable(to).transfer(amount);
+        require(msg.sender == owner, "only ownwer can request funds release");
+        require(msg.sender != address(0), "address 0");
+        require(to != address(0), "address 0");
 
-        emit ReleaseFunds(owner, amount, block.timestamp); 
+        // @teacher: below does not compile ?
+        // if (totalAmount < amount) {
+        //     revert InsufficientBalance({balance: totalAmount, withdrawAmount: amount});
+        // }
+        require(totalAmount >= amount, "amount requested unsufficient");
+
+        // @teacher "anything to worry about the `amount` warning: conversion truncates uint256 to uint128, as value is type uint128 on target evm" ?
+        payable(to).transfer(amount);
+        totalAmount -= amount;
+
+        emit ReleaseFunds(owner, amount); 
     }
 
 }
