@@ -18,7 +18,7 @@ contract Donation {
     uint256 public totalAmount;
 
     // custo error
-     error InsufficientBalance(uint balance, uint withdrawAmount);
+    //  error InsufficientBalance(uint balance, uint withdrawAmount);
 
     constructor () {
         owner = msg.sender;
@@ -44,12 +44,12 @@ contract Donation {
    */
     function donate() external payable {
         uint256  amount  = msg.value;
-        require(amount > 0,"donations is 0");
+        require(amount > 0,"donations cannot be 0");
 
         amounts[msg.sender] += amount;
         totalAmount += amount;
 
-        if (amounts[msg.sender] == 0){
+        if (amounts[msg.sender] > 0){
             donors.push(msg.sender);
         }
 
