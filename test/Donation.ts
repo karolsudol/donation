@@ -7,6 +7,9 @@ describe("Donation", async () => {
   let donation: Donation;
   let accounts: any[];
 
+  const { waffle } = require("hardhat");
+  const provider = waffle.provider;
+
   before(async () => {
     accounts = await ethers.getSigners();
   });
@@ -17,25 +20,44 @@ describe("Donation", async () => {
   });
 
   it("Should donate correctly", async () => {
+    // contract address starts with zero as 0 donations
+    const balance0ETH = await provider.getBalance(donation.address);
+    expect(balance0ETH).to.be.equal(ethers.utils.parseEther("0.0"));
+
+    // acc1 donates 1.0 -> total: 1
     await donation
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("1.0") });
+    const balance1ETH = await provider.getBalance(donation.address);
+    expect(balance1ETH).to.be.equal(ethers.utils.parseEther("1.0"));
 
-    const { waffle } = require("hardhat");
-    const provider = waffle.provider;
+    // acc2 donates 1.0 -> total: 2
+    await donation
+      .connect(accounts[2])
+      .donate({ value: ethers.utils.parseEther("1.0") });
+    const balance2ETH = await provider.getBalance(donation.address);
+    expect(balance2ETH).to.be.equal(ethers.utils.parseEther("2.0"));
 
-    const balance0ETH = await provider.getBalance(donation.address);
-    expect(balance0ETH).to.be.equal(ethers.utils.parseEther("1.0"));
-
+    // do not accept zero values
     await expect(
       donation.donate({ value: ethers.utils.parseEther("0.0") })
     ).to.be.revertedWith("donations cannot be 0");
   });
 
   it("Should release funds correctly", async () => {
+    const owner = donation.owner;
+
+    // acc2 donates 1.0 -> total: 1
     await donation
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("1.0") });
+
+    await expect(
+      donation.releaseFunds(
+        accounts[2].address,
+        ethers.utils.parseEther("10.0")
+      )
+    ).to.be.revertedWith("amount requested unsufficient");
 
     const balanceBefore = await accounts[2].getBalance();
     await donation.releaseFunds(
@@ -80,15 +102,5 @@ describe("Donation", async () => {
     expect(donors2.length).to.be.equal(2);
     expect(donors2[0]).to.be.equal(accounts[1].address);
     expect(donors2[1]).to.be.equal(accounts[2].address);
-
-    // await donation
-    //   .connect(accounts[1])
-    //   .donate({ value: ethers.utils.parseEther("2.0") });
-    // expect(donors.length).to.be.equal(2);
-
-    // TBD: struggle to get eth values saved for each address in mapping
-
-    // const amounts = donation.amounts;
-    // expect((await amounts(accounts[1])).toNumber).to.be.equal(2.0);
   });
 });
