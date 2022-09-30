@@ -134,7 +134,7 @@ describe("Donation", async () => {
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("1.0") });
     const donors3 = await donation.getDonors();
-    expect(donors3.length).to.be.equal(3);
+    expect(donors3.length).to.be.equal(2);
     expect(donors3[0]).to.be.equal(accounts[1].address);
     expect(donors3[1]).to.be.equal(accounts[2].address);
 

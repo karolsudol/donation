@@ -46,12 +46,12 @@ contract Donation {
         uint256 amount = msg.value;
         require(amount > 0, "donation is 0");
 
-        amounts[msg.sender] += amount;
-        totalAmount += amount;
-
-        if (amounts[msg.sender] != 0) {
+        if (amounts[msg.sender] == 0) {
             donors.push(msg.sender);
         }
+
+        amounts[msg.sender] += amount;
+        totalAmount += amount;
 
         emit Donate(msg.sender, amount);
     }
