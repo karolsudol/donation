@@ -18,6 +18,7 @@ contract Donation {
 
     constructor() {
         owner = msg.sender;
+        // totalAmount = 0;
     }
 
     /** **** View Functions ****  */
@@ -39,12 +40,12 @@ contract Donation {
      */
     function donate() external payable {
         uint256 amount = msg.value;
-        require(amount > 0, "donations cannot be 0");
+        require(amount > 0, "donation is 0");
 
         amounts[msg.sender] += amount;
         totalAmount += amount;
 
-        if (amounts[msg.sender] == 0) {
+        if (amounts[msg.sender] != 0) {
             donors.push(msg.sender);
         }
 
@@ -61,7 +62,7 @@ contract Donation {
      */
     function releaseFunds(address to, uint256 amount) external {
         require(msg.sender == owner, "only ownwer");
-        require(msg.sender != address(0), "address 0");
+
         require(to != address(0), "address 0");
 
         require(totalAmount >= amount, "amount insufficient");
