@@ -68,11 +68,11 @@ describe("Donation", async () => {
     ).to.be.revertedWith("address 0");
 
     // C. only owner can make a withdrawal
-    // await expect(
-    //   await donation
-    //     .connect(ethers.constants.AddressZero)
-    //     .releaseFunds(accounts[1].address, ethers.utils.parseEther("1.0"))
-    // ).to.be.revertedWith("only ownwer");
+    await expect(
+      donation
+        .connect(accounts[1])
+        .releaseFunds(accounts[1].address, ethers.utils.parseEther("1.0"))
+    ).to.be.revertedWith("only ownwer");
 
     // D. so total is still 1.0, withdraw half and check balance
     const balanceBefore = await accounts[2].getBalance();
@@ -100,9 +100,7 @@ describe("Donation", async () => {
     expect(donors0.length).to.equal(0.0);
 
     // so is total 0
-    // const total0 = donation.totalAmount;
-    // assert.equal(donation.totalAmount, 0.0);
-    expect(donation.totalAmount).to.equal(0);
+    expect(await donation.getTotalAmout()).to.equal(0);
 
     // B. acc1 donates 1.0 -> donors list is updated to 1 pax with only this adress
     await donation
@@ -113,8 +111,9 @@ describe("Donation", async () => {
     expect(donors1[0]).to.be.equal(accounts[1].address);
 
     // total is now 1
-    const total1 = donation.totalAmount;
-    expect(total1).to.equal(1);
+    expect(await donation.getTotalAmout()).to.equal(
+      ethers.utils.parseEther("1.0")
+    );
 
     // C. acc2 donates 1.0 -> donors list is updated to 2 pax, with extra address
     await donation
@@ -126,20 +125,22 @@ describe("Donation", async () => {
     expect(donors2[1]).to.be.equal(accounts[2].address);
 
     // total is now 2
-    const total2 = donation.totalAmount;
-    expect(total2).to.equal(2);
+    expect(await donation.getTotalAmout()).to.equal(
+      ethers.utils.parseEther("2.0")
+    );
 
     // D. acc1 donates 1.0 again -> donors list should not change as duplicate
     await donation
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("1.0") });
     const donors3 = await donation.getDonors();
-    expect(donors3.length).to.be.equal(2);
+    expect(donors3.length).to.be.equal(3);
     expect(donors3[0]).to.be.equal(accounts[1].address);
     expect(donors3[1]).to.be.equal(accounts[2].address);
 
     // total is now 3
-    const total3 = donation.totalAmount;
-    expect(total3).to.equal(3);
+    expect(await donation.getTotalAmout()).to.equal(
+      ethers.utils.parseEther("3.0")
+    );
   });
 });

@@ -31,6 +31,10 @@ contract Donation {
         return donors;
     }
 
+    function getTotalAmout() external view returns (uint256) {
+        return totalAmount;
+    }
+
     /** **** State Changing External Functions **** */
 
     /**
