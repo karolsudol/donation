@@ -86,8 +86,11 @@ describe("Donation", async () => {
   });
 
   it("Should record donors addreses and payment details correctly", async () => {
-    const donors = await donation.getDonors();
-    expect(donors.length).to.be.equal(0);
+    // donors list starts empty -> nobody donated yet
+    const donors0 = await donation.getDonors();
+    expect(donors0.length).to.be.equal(0);
+
+    // acc1 donates 2.0 -> donors list is updated to 1 pax with only this adress
     await donation
       .connect(accounts[1])
       .donate({ value: ethers.utils.parseEther("2.0") });
@@ -95,6 +98,7 @@ describe("Donation", async () => {
     expect(donors1.length).to.be.equal(1);
     expect(donors1[0]).to.be.equal(accounts[1].address);
 
+    // acc2 donates 1.0 -> donors list is updated to 2 pax, with extra address
     await donation
       .connect(accounts[2])
       .donate({ value: ethers.utils.parseEther("1.0") });
@@ -102,5 +106,17 @@ describe("Donation", async () => {
     expect(donors2.length).to.be.equal(2);
     expect(donors2[0]).to.be.equal(accounts[1].address);
     expect(donors2[1]).to.be.equal(accounts[2].address);
+
+    // acc1 donates 2.0 again -> donors list should not change as duplicate
+    await donation
+      .connect(accounts[1])
+      .donate({ value: ethers.utils.parseEther("2.0") });
+    const donors3 = await donation.getDonors();
+    expect(donors3.length).to.be.equal(2);
+    expect(donors3[0]).to.be.equal(accounts[1].address);
+    expect(donors3[1]).to.be.equal(accounts[2].address);
+
+    // const total1 = await donation.totalAmount();
+    // expect(total1).to.be.equal(1);
   });
 });

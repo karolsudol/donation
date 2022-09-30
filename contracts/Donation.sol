@@ -16,9 +16,6 @@ contract Donation {
     address[] public donors;
     uint256 public totalAmount;
 
-    // custo error
-    //  error InsufficientBalance(uint balance, uint withdrawAmount);
-
     constructor() {
         owner = msg.sender;
     }
@@ -47,7 +44,7 @@ contract Donation {
         amounts[msg.sender] += amount;
         totalAmount += amount;
 
-        if (amounts[msg.sender] > 0) {
+        if (amounts[msg.sender] == 0) {
             donors.push(msg.sender);
         }
 
@@ -63,13 +60,12 @@ contract Donation {
      * Emits a {ReleaseFunds} event.
      */
     function releaseFunds(address to, uint256 amount) external {
-        require(msg.sender == owner, "only ownwer can request funds release");
+        require(msg.sender == owner, "only ownwer");
         require(msg.sender != address(0), "address 0");
         require(to != address(0), "address 0");
 
-        require(totalAmount >= amount, "amount requested unsufficient");
+        require(totalAmount >= amount, "amount insufficient");
 
-        // @teacher "anything to worry about the `amount` warning: conversion truncates uint256 to uint128, as value is type uint128 on target evm" ?
         payable(to).transfer(amount);
         totalAmount -= amount;
 
